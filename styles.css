@@ -1,0 +1,24 @@
+#results {
+    display:none;
+}
+
+#rtable {
+    margin-top:20px;
+}
+
+#playlist-results {
+    display:none;
+}
+
+#track-results {
+    display:none;
+}
+
+#info {
+    width: 100%;
+    height:28px;
+    overflow:hide;
+    margin-top:10px;
+    margin-bottom:10px;
+
+}

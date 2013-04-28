@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>The Curation Station</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
+    <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
+
+    <style type="text/css">
+
+      /* Custom container */
+      .container-narrow {
+        margin: 0 auto;
+        max-width: 700px;
+      }
+      .container-narrow > hr {
+        margin: 30px 0;
+      }
+
+      /* Main marketing message and sign up button */
+      .jumbotron {
+        margin: 60px 0;
+        text-align: center;
+      }
+      .jumbotron h1 {
+        font-size: 48px;
+        line-height: 1;
+      }
+      .jumbotron .btn {
+        font-size: 21px;
+        padding: 14px 24px;
+      }
+
+      /* Supporting marketing content */
+      .marketing {
+        margin: 60px 0;
+      }
+      .marketing p + h4 {
+        margin-top: 28px;
+      }
+    </style>
+  </head>
+
+<body>
+<div id="wrap" class="navbar navbar-inverse">
+  <div class="navbar-inner">
+    <div class="container">
+      <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </a>
+      <a id='show-search' class="brand">Curation Station</a>
+      <div class="nav-collapse collapse">
+        <ul class="nav">
+          <li class="nav-choice "><a href="index.html">Main</a></li>
+        </ul>
+        <ul class="nav pull-right">
+             <li class="nav-choice"><a href="tplist.html">Your recent shows</a></li>
+            <li class="nav-choice active"><a href='about.html'>About</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <div class="container-narrow">
+      <hr>
+
+      <div class="jumbotron">
+        <h1> The Creation Station</h1>
+        <p class="lead">The Creation Station is a web app that helps you to understand the type music that appears on a particular TV show and
+        then use this information to discover new music that would be appropriate for that show.
+      </div>
+
+      <img width='320' src="scatter.png">
+      <img width='320' src="distribution.png">
+
+      <hr>
+
+      <div class="row-fluid marketing">
+        <div class="span6">
+          <h4>Getting Started</h4>
+
+          <p>
+             Type the title of the TV show, we will then mine the web for songs that appear or are associated with that TV show.
+             You can then create an Rdio Playlist of these songs, or you can go to the 'curator' and explore the music collection.
+          </p>
+
+
+          <h4>Curator</h4>
+          <p>The curator allows you to look at a wide range of artist and song parameters to help give you a good understanding of the
+          type of music that appears on a show.
+
+          <h4>Distribution Graph</h4>
+            The distribution graph shows you how the songs are distributed across a range of about a dozen parameters.
+        </div>
+
+
+        <div class="span6">
+          <h4>Scatter Graph</h4>
+          <p>The scatter graph shows 4 pieces of data for each song in the collection.  Any parameter can be associated
+             with the X, Y position, the size, or the color of the song. Click on a song in the graph to hear it and see all of
+             its song parameters.
+           </p>
+          <h4>Getting recommendations</h4>
+            Press the <button class='btn btn-primary btn-mini'> Find new songs</button> button to get recommendations of new music for the TV show.
+            Press the <button id="more-like-this" class="btn btn-success btn-mini"> <i class="icon-white icon-plus"></i> More </button>
+            to get recommendations for songs similar to a particular song.
+
+          <h4>Who made this?</h4>
+          <p>This is a hack created at the <a href="http://www.tvnexthack.com/"> TVnext Hack </a> by <a href="http://twitter.com/plamere">Paul
+          Lamere </a>on April 28, and 29 2013.  
+
+        </div>
+
+      </div>
+
+      <hr>
+
+      <div class="footer">
+        <p>&copy; The Echo nest 2013</p>
+      </div>
+
+
+
+
+<script type="text/javascript">
+</script>
+</body>
+</html>

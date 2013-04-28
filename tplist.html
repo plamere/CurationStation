@@ -1,0 +1,120 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<link rel="stylesheet" href="styles.css" type="text/css" media="screen">
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
+<script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
+<script src="js/underscore-min.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" src="js/date.format.js"></script> 
+<script type="text/javascript" src="echonest.js"></script> 
+
+<title> Curation Station </title>
+
+</head>
+
+<body>
+<div id="wrap" class="navbar navbar-inverse">
+  <div class="navbar-inner">
+    <div class="container">
+      <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </a>
+      <a id='show-search' class="brand">Curation Station</a>
+      <div class="nav-collapse collapse">
+        <ul class="nav">
+          <li class="nav-choice "><a href="index.html">Main</a></li>
+          <li class="nav-choice active"><a href="tplist.html">Your recent shows</a></li>
+        </ul>
+        <ul class="nav pull-right">
+            <li class="nav-choice"><a href='about.html'>About</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="hero" class="hero-unit">
+  <div class="container">
+    <h2> Curation Station</h2>
+        <div class="lead">
+            Pick one of your recent shows:
+        </div>
+
+      <div class="container">
+          <div class="form-search">
+            <div id="search">
+                <select id='tp-select'>
+                </select>
+                <button id='go' class='btn btn-primary'> Go </button>
+            <div id="info"></div>
+          </div>
+      </div>
+
+      <div id="instructions" class="container span8">
+        <p>
+            You can explore for new music using any of a dozen cultural and acoustic 
+            song attributes.  To get started, pick one of your recent shows from the above list and hit the Go button.
+        </p>
+      </div>
+
+
+      <div class="container span8">
+        <small> Powered by <a href="http://echonest.com">The Echo Nest</a> and <a href="http://rdio.com">Rdio</a>.  </small>
+      </div>
+  </div>
+</div>
+</body>
+<script type="text/javascript">
+
+var playlists = null;
+var api_key = 'B8DFEDXDQLWIHUHMM';
+
+var en = new EchoNest(api_key);
+
+
+
+function init() {
+    populateTPSelect();
+
+    $("#go").click(function() {
+            var id  = $("#tp-select").val();
+            console.log('id', id);
+            var url = 'curation.html?id=' + id;
+            window.location = url;
+    });
+
+}
+
+
+function populateTPSelect() {
+    en.catalog.list(0, 100,
+        function(data) {
+            var sel = $("#tp-select");
+            sel.empty();
+            $.each(data.response.catalogs, function(i, cat) {
+                sel.append( $("<option>").text(cat.name).attr('value', cat.id));
+            });
+        },
+
+        function () {
+            info("Problem getting the list of current taste profiles");
+        }
+    );
+}
+
+function info(s) {
+    $("#info").text(s);
+}
+
+
+$(document).ready(function() {
+    init();
+});
+
+</script>
+</html>
+
+

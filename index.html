@@ -1,0 +1,601 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<link rel="stylesheet" href="styles.css" type="text/css" media="screen">
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
+<script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
+<script src="js/underscore-min.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" src="js/date.format.js"></script> 
+<script src="https://www.rdio.com/api/api.js?client_id=Ufg_i9sBfigkuL5rYBlIdw"></script>
+<script type="text/javascript" src="echonest.js"></script> 
+
+<title> Curation Station </title>
+
+</head>
+
+<body>
+<div id="wrap" class="navbar navbar-inverse">
+  <div class="navbar-inner">
+    <div class="container">
+      <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </a>
+      <a id='show-search' class="brand">Curation Station</a>
+      <div class="nav-collapse collapse">
+        <ul class="nav">
+          <li class="nav-choice active"><a href="index.html">Main</a></li>
+        </ul>
+        <ul class="nav pull-right">
+             <li class="nav-choice"><a href="tplist.html">Your recent shows</a></li>
+            <li class="nav-choice"><a href='about.html'>About</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="hero" class="hero-unit">
+  <div class="container">
+    <h2> Curation Station</h2>
+        <div class="lead">
+            The Curation Station will help you find new and interesting music for a TV series by looking for 
+            music by similar-sounding artists. 
+        </div>
+
+      <div class="container">
+          <div class="form-search">
+            <div id="search">
+                <input type="text" placeholder='"pretty little liars" -country' class="input-xxlarge input-path gen-input" id="source" value="">
+                <button id='rdio-search' class='btn btn-primary'> Rdio Playlists </button>
+                <button id='watchwith-search' class='btn btn-primary'> Watchwith</button>
+            <div id="info"></div>
+          </div>
+      </div>
+
+      <div id="instructions" class="container span8">
+        <p>
+            You can explore for new music using any of a dozen cultural and acoustic 
+            song attributes.  To get started, type in the name of a TV show and we'll find music used in the show.
+        </p>
+      </div>
+      <div id="playlist-results" class="container span11">
+            <div>
+                <div id="status" class="hide">
+                    <div class="progress progress-striped">
+                        <div id='progress-bar' class="bar"> </div>
+                    </div>
+                </div>
+                <div id='playlist-info'>
+                    <div>
+                        <span> Found <span id="playlist-showing"> </span> playlists</span>
+                        <span> with a total of <span id="track-count"> </span> tracks.</span>
+                    </div>
+                    <br>
+                    <button id="button-get-songs" class="btn btn-primary">Build Playlist</button>
+                </div>
+                <table id="rtable" class="table table-striped table-hover table-bordered">
+                    <thead>
+                    </thead>
+                    <tbody id="playlist-results-body">
+                    </tbody>
+                </table>
+            </div>
+      </div>
+
+      <div id="track-results" class="container span11">
+            <div>
+                <h3> Top songs found in matching playlists</h3>
+                <button id="button-save-playlist" class="btn btn-primary"> Save Playlist to Rdio</button>
+                <a id="button-save-to-tp" class="btn btn-primary"> Curate this TV Show</a>
+                <table id="rtable" class="table table-striped table-hover table-bordered">
+                    <thead>
+                        <tr> <th> # <th> Album <th> Count <th> Artist <th> Song
+                    </thead>
+                    <tbody id="track-results-body"> </tbody>
+                </table>
+            </div>
+      </div>
+
+      <div class="container span8">
+        <small> Powered by <a href="http://echonest.com">The Echo Nest</a> and <a href="http://rdio.com">Rdio</a>.  </small>
+      </div>
+  </div>
+</div>
+</body>
+<script type="text/javascript">
+
+var playlists = null;
+var api_key = 'B8DFEDXDQLWIHUHMM';
+
+var en = new EchoNest(api_key);
+
+
+
+function init() {
+    $("#source").keyup( 
+        function(event) {
+            if (event.keyCode == 13) {
+                var query = $("#source").val();
+                info("Searching for " + query + " playlists ...");
+                searchForPlaylists(query);
+            }
+        }
+    );
+
+    $("#rdio-search").click(function() {
+        var query = $("#source").val();
+        info("Searching for " + query + " playlists ...");
+        searchForPlaylists(query);
+    });
+
+    $("#watchwith-search").click(function() {
+        var query = $("#source").val();
+        info("Searching for " + query + " playlists ...");
+        searchWatchWith(query);
+    });
+
+    $("#button-get-songs").click(
+        function() {
+            fetchTracksFromAllCurrentPlaylists();
+        }
+    );
+
+    $("#button-save-playlist").click(
+        function() {
+            $("#button-save-playlist").attr("disabled", "disabled");
+            savePlaylist();
+        }
+    );
+
+    $("#button-get-all-songs").click(
+        function() {
+            $("#button-get-songs").hide();
+            fetchTracksFromAllPlaylists();
+        }
+    );
+
+    $("#button-save-to-tp").click(function() {
+        curateSongs();
+    });
+
+    $("#tpsave").on('show', function() {
+        $("#tp-view").hide();
+        $("#tp-name").val('');
+        tpinfo('');
+        populateTPSelect();
+    });
+
+    $("#tp-name-sel").change( function() {
+        var val = $("#tp-name-sel").val();
+        // $("#tp-name").val(val);
+    });
+}
+
+
+function searchWatchWith(q) {
+    info("");
+}
+
+function tpinfo(s) {
+    $("#tp-save-status").text(s);
+}
+
+function populateTPSelect() {
+    en.catalog.list(0, 100,
+        function(data) {
+            var sel = $("#tp-name-sel");
+            sel.empty();
+            sel.append( $("<option>").text('(New)').attr('value', ''));
+            $.each(data.response.catalogs, function(i, cat) {
+                sel.append( $("<option>").text(cat.name).attr('value', cat.id));
+            });
+        },
+
+        function () {
+            tpinfo("Problem getting the list of current taste profiles");
+        }
+    );
+}
+
+function info(s) {
+    $("#info").text(s);
+}
+
+
+function curateSongs() {
+    var baseName = $("#source").val().replace(/\W+/g, '-');
+    var name = baseName + '-' + Math.round(Math.random() * 1000000);
+    createAndUpdateTasteProfile(name, 200);
+}
+
+
+function getUpdateBlock(count) {
+    var blocks = [];
+
+    $.each(trackStats.sortedTracks, 
+        function(index, ttrack) {
+            if (index < count) {
+                var track = trackStats.allTracks[ttrack.key];
+                var item = {
+                    action : 'update',
+                    item : {
+                        item_id : 'item-' + ttrack.key,
+                        artist_name: track.artist,
+                        song_name: track.name,
+                        play_count: ttrack.val * ttrack.val,
+                    }
+                }
+                blocks.push(item);
+            }
+        }
+    );
+
+    return blocks;
+}
+
+function updateTasteProfile(id, count) {
+
+    var block = getUpdateBlock(count);
+
+    tpinfo("Updating Taste Profile ...");
+    en.catalog.addBlock(id, block, 
+        function(data) {
+            var ticket = data.response.ticket;
+
+            tpinfo("Waiting for the update to resolve  ...");
+            en.catalog.pollForStatus(ticket,
+                function(data) {
+                    tpinfo("Done! ID is: " + id);
+                    var url = 'curation.html?id=' + id;
+                    window.location = url;
+                },
+
+                function(data) {
+                    tpinfo("Trouble updating TP");
+                }
+            );
+        },
+
+        function() {
+            alert("trouble updating tp");
+        }
+    );
+}
+
+function createAndUpdateTasteProfile(name, count) {
+    tpinfo("Creating taste profile ...");
+    en.catalog.create(name,
+        function(data) {
+            var id = data.response.id;
+            tpinfo("Done! ID is: " + id);
+            updateTasteProfile(id, count);
+        },
+
+        function(data) {
+            tpinfo("trouble creating TP " + name);
+        }
+    );
+}
+
+
+
+R.ready(
+    function() {
+        init();
+    }
+);
+
+function getTitle(item) {
+    var a = $("<a>");
+    a.text(item.name);
+    a.click(
+        function() {  
+            window.open(item.shortUrl, 'rdio-window');
+        }
+    );
+    return a;
+}
+
+function getImage(item) {
+    var img = $("<img>");
+    img.attr('src', item.icon);
+    img.click(
+        function() {  
+            window.open(play.shortUrl, 'rdio-window');
+        }
+    );
+    return img;
+}
+
+function mapToList(map) {
+    var res = [];
+
+    for (var k in map) {
+        var v = map[k];
+        res.push( {key:k, val:v});
+    }
+    return res;
+}
+
+function playButton(track) {
+    var button = $("<button>").text('Play');
+    button.attr("class", "btn btn-small");
+    button.click(
+        function() {
+            R.player.play({source:track.key});
+        }
+    );
+    return button;
+}
+
+var trackStats = {
+}
+
+function showTrackResults() {
+    var tracks = mapToList(trackStats.trackCounts);
+    var maxTracksToShow = 1000;
+    tracks = _.sortBy(tracks, function(kv) { return kv.val; } );
+    tracks.reverse();
+    trackStats.sortedTracks = tracks;
+
+    $("#track-results").show();
+    $("#playlist-results").hide();
+    $("#button-save-playlist").removeAttr("disabled");
+    var tbody = $("#track-results-body");
+    tbody.empty();
+    $.each(tracks, 
+        function (index, trackData) {
+            if (index < maxTracksToShow) {
+                var track = trackStats.allTracks[trackData.key];
+                var count = trackData.val;
+                var tr = $("<tr>");
+                var albumUrl = "http://www.rdio.com/" + track.albumUrl;
+                tr.append( $("<td>").append(index + 1));
+                if (index < 30) {
+                    tr.append( $("<td>").append(getImage(track)));
+                } else {
+                    tr.append( $("<td>").text(track.album));
+                }
+                tr.append( $("<td>").append(count));
+                tr.append( $("<td>").append(track.artist));
+                tr.append( $("<td>").append(getTitle(track)));
+                tr.append( $("<td>").append(playButton(track)));
+                tbody.append(tr);
+            }
+        }
+    );
+}
+
+
+function initTrackStats() {
+    trackStats = {
+        artistCounts : {},
+        trackCounts : {},
+        allTracks: {},
+        allArtists: {},
+        sortedTracks : [],
+        trackIDs : [],
+        trackCount:0
+    }
+}
+
+
+function stuffTrack(t) {
+    if (! (t.artistKey in trackStats.allArtists)) {
+        trackStats.allArtists[t.artistKey] = {
+            name: t.artist,
+            key: t.artistKey,
+        };
+    }
+    if (! (t.key in trackStats.allTracks)) {
+        trackStats.allTracks[t.key] = t;
+    }
+
+    if (! (t.artistKey in trackStats.artistCounts)) {
+        trackStats.artistCounts[t.artistKey] = 0;
+    }
+
+    if (! (t.key in trackStats.trackCounts)) {
+        trackStats.trackCounts[t.key] = 0;
+    }
+
+    trackStats.artistCounts[t.artistKey] += 1;
+    trackStats.trackCounts[t.key] += 1;
+    trackStats.trackIDs.push(t.key);
+}
+
+
+var expectedResults = 0;
+var  foundResults = 0;
+
+
+function fetchTracksFromAllCurrentPlaylists() {
+    expectedResults = playlists.length;
+    foundResults = 0;
+    $.each(playlists, 
+        function(index, playlist) {
+            fetchTracksFromPlaylist(index, expectedResults, playlist);
+        }
+    );
+}
+
+function savePlaylist() {
+    info("Saving the playlist");
+    if (!R.authenticated()) {
+        R.authenticate(
+            function(state) {
+                if (!state) {
+                    info("Can't save the playlist unless you authorize this app");
+                } else {
+                    savePlaylistToRdio();
+                }
+            }
+        );
+    } else {
+        savePlaylistToRdio();
+    }
+}
+
+function getCurRdioTracks() {
+    var maxIDs = 100;
+    var ids = [];
+
+    $.each(trackStats.sortedTracks, 
+        function(index, track) {
+            var id = track.key;
+            var count = track.val;
+            if (count > 1 && ids.length < maxIDs) {
+                ids.push(id);
+            }
+        }
+    );
+    return ids;
+}
+
+function savePlaylistToRdio() {
+    var ids = getCurRdioTracks();
+    var query = $("#source").val();
+    var description = 'Created by the Smart Playlist Builder, with the query: ' + query;
+    var title = "Top " + query + " songs via SPB";
+
+    if (ids.length > 0) {
+        R.request( 
+        { 
+            method:"createPlaylist", 
+            content: { 
+                name: title,
+                description: description,
+                tracks: ids 
+            },
+
+            success: function(response) {
+                info("Playlist titled '" + title + "' has been saved to Rdio.");
+            },
+
+            error: function(response) {
+                error("whoops - had some trouble saving that playlist to rdio");
+            }
+        });
+    }  else {
+    }
+}
+
+function fetchTracksFromPlaylist(which, total, playlist) {
+    var progressBar = $("#progress-bar");
+    var args = { keys: [playlist.key], extras:['tracks']};
+    if (which == 0) {
+        $("#status").show();
+        $("#playlist-info").hide();
+        progressBar.css('width', '0%');
+    }
+    R.request({
+        method: 'get',
+        content: args,
+
+        success: function(response) {
+            foundResults += 1;
+            $.each(response.result[playlist.key].tracks, 
+                function(index, track) {
+                    stuffTrack(track);
+                }
+            );
+
+            if (foundResults >= expectedResults) {
+                $("#status").hide();
+                progressBar.css('width', '0%');
+                info("");
+                showTrackResults();
+            } else {
+                var percent = Math.round(trackStats.trackIDs.length * 100 / trackStats.trackCount);
+                info(percent + "%  of tracks loaded. Loading from " + playlist.name);
+                progressBar.css('width', percent + '%');
+            }
+        },
+
+        error: function(response) {
+            foundResults +=1;
+            info("Error getting tracks");
+            if (foundResults >= expectedResults) {
+                showTrackResults();
+            }
+        }
+    });
+    
+}
+
+
+function showResults(results) {
+    var wantImages = false;
+    initTrackStats();
+    $("#track-results").hide();
+    $("#instructions").hide();
+    $("#playlist-results").show();
+    var tbody = $("#playlist-results-body");
+    tbody.empty();
+    var sum = 0;
+    if (results.length == 0) {
+        info("No matching compilations found");
+    } else {
+        $.each(results, 
+            function(index, playlist)  {
+                var tr = $("<tr>");
+                tr.append( $("<td>").append(index + 1));
+                if (wantImages) {
+                    if (index < 30) {
+                        tr.append( $("<td>").append(getImage(playlist)));
+                    } else {
+                        tr.append( $("<td>"));
+                    }
+                }
+                tr.append( $("<td>").append(getTitle(playlist)));
+                tr.append( $("<td>").append(playlist.length + " tracks"));
+                tbody.append(tr);
+                sum += playlist.length;
+            }
+        );
+    }
+    trackStats.trackCount = sum;
+    $("#track-count").text(sum);
+}
+
+function showAllResults() {
+    $("#playlist-results").show();
+    $("#button-get-songs").show();
+    showResults(playlists);
+    info("");
+}
+
+function searchForPlaylists(keywords) {
+    var args = { query: keywords, never_or:true, count:200, types:'playlist'};
+    R.request({
+        method: 'search',
+        content: args,
+
+        success: function(response) {
+            $("#playlist-info").show();
+            $("#playlist-count").text(response.result.playlist_count);
+            $("#playlist-showing").text(response.result.results.length);
+            $("#button-get-songs").text("Aggregate tracks from " + response.result.results.length + " playlists");
+            // info("Found " + response.result.playlist_count + " matching playlists");
+            playlists = response.result.results;
+            showAllResults();
+        },
+
+        error: function(response) {
+            info("Error getting playlists");
+        }
+    });
+    
+}
+
+
+$(document).ready(function() {
+});
+
+</script>
+</html>
+
+
