@@ -87,7 +87,7 @@
 
       <div id="track-results" class="container span11">
             <div>
-                <h3> Top songs found in matching playlists</h3>
+                <h3> Top matching songs found </h3>
                 <button id="button-save-playlist" class="btn btn-primary"> Save Playlist to Rdio</button>
                 <a id="button-save-to-tp" class="btn btn-primary"> Curate this TV Show</a>
                 <table id="rtable" class="table table-striped table-hover table-bordered">
@@ -176,11 +176,59 @@ function init() {
 
 
 function searchWatchWith(q) {
-    info("");
+    var url = 'http://api-tvnext.watchwith.com/v3/works/WK107046?key=316TU834BKK';
+    console.log('ww query');
+    $.getJSON(url, {},
+        function(data) {
+            info("");
+
+            var tracks = [];
+            $.each(data.items, function(key, item) {
+                if ('object' in item && item.object.flag == 'FEATURED') {
+                    var song = item.object.caption;
+                    console.log('song', song);
+                    var index = song.lastIndexOf('(');
+                    if (index > 0) {
+                        var title= song.substring(0, index - 1);
+                        title = title.replace(/\W+/g, ' ');
+                        var artist = song.substring(index+1);
+                        artist = artist.replace(/\W+/g, ' ');
+                        console.log('title', title);
+                        console.log('artist', artist);
+                        tracks.push( {artist:artist, title:title });
+                    }
+                }
+            });
+
+            $("#track-results").show();
+            $("#playlist-results").hide();
+            $("#button-save-playlist").removeAttr("disabled");
+            var tbody = $("#track-results-body");
+            tbody.empty();
+            $.each(tracks, 
+                function (index, track) {
+                    var count = 1;
+                    var tr = $("<tr>");
+                    tr.append( $("<td>").append(index + 1));
+                    tr.append( $("<td>").append(''));
+                    tr.append( $("<td>").append('1'));
+                    tr.append( $("<td>").append(track.artist));
+                    tr.append( $("<td>").append(track.title));
+                    tbody.append(tr);
+                }
+            );
+            /*
+            */
+        },
+        function() {
+            console.log('ww error', data);
+        }
+    );
 }
 
 function tpinfo(s) {
-    $("#tp-save-status").text(s);
+    info(s);
+    //$("#tp-save-status").text(s);
 }
 
 function populateTPSelect() {
@@ -248,9 +296,11 @@ function updateTasteProfile(id, count) {
             tpinfo("Waiting for the update to resolve  ...");
             en.catalog.pollForStatus(ticket,
                 function(data) {
-                    tpinfo("Done! ID is: " + id);
-                    var url = 'curation.html?id=' + id;
-                    window.location = url;
+                    setTimeout(function() {
+                        tpinfo("Done! ID is: " + id);
+                        var url = 'curation.html?id=' + id;
+                        window.location = url;
+                    }, 3000);
                 },
 
                 function(data) {

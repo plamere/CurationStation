@@ -473,7 +473,7 @@ function normalizeSongAttribute(attribute) {
 
 function getSongData(chartX, chartY, chartZ, chartW) {
     var data = [];
-    var minSize = 3;
+    var minSize = 6;
     var sizeRange = 12;
 
     function get(chart, song) {
@@ -571,7 +571,7 @@ function updateScatterChart() {
     addURL('w', cw.key);
     addURL('type', 'scatter');
     clrURL(['d']);
-    makeURL();
+    // makeURL();
 
     // SERIAL CHART
     var dataProvider = getSongData(cx, cy, cz, cw);
@@ -1019,7 +1019,7 @@ function updateDistributionChart() {
     addURL('type', 'bar');
     addURL('d', chartInfo.key);
     clrURL(['x', 'y', 'z', 'w']);
-    makeURL();
+    // makeURL();
 
     showBarChart(chartInfo);
 }
@@ -1158,7 +1158,16 @@ function processParams() {
         id = params['id'];
     } 
 
-    selectAttribute("#attribute-select", 'd', params);
+    // hardwire the params for the demo
+    params = {
+        type: 'scatter',
+        x: 'energy',
+        y: 'loudness',
+        z: 'dance',
+        w: 'Art hot'
+    };
+
+    // selectAttribute("#attribute-select", 'd', params);
     selectAttribute("#x-attribute-select", 'x', params);
     selectAttribute("#y-attribute-select", 'y', params);
     selectAttribute("#z-attribute-select", 'z', params);
