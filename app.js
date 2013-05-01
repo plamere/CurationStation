@@ -759,7 +759,7 @@ function getRdioID(song) {
 }
 
 function hasTracks(song) {
-    return 'tracks' in song && song.tracks.length > 0;
+    return song && ('tracks' in song) && (song.tracks.length > 0);
 }
 
 function playSong(song) {

@@ -77,7 +77,7 @@ var en = new EchoNest(api_key);
 
 
 function init() {
-    populateTPSelect();
+    populateTPSelect(0);
 
     $("#go").click(function() {
             var id  = $("#tp-select").val();
@@ -89,14 +89,22 @@ function init() {
 }
 
 
-function populateTPSelect() {
-    en.catalog.list(0, 100,
+function populateTPSelect(start) {
+    en.catalog.list(start, 100,
         function(data) {
             var sel = $("#tp-select");
             sel.empty();
+            console.log(data.response);
             $.each(data.response.catalogs, function(i, cat) {
-                sel.append( $("<option>").text(cat.name).attr('value', cat.id));
+                if (cat.total > 0) {
+                    sel.append( $("<option>").text(cat.name).attr('value', cat.id));
+                }
             });
+
+            var curSize = data.response.catalogs.length;
+            if (curSize > 0 && (start + curSize < data.response.total)) {
+                populateTPSelect(start + curSize);
+            }
         },
 
         function () {
