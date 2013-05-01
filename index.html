@@ -48,9 +48,8 @@
       <div class="container">
           <div class="form-search">
             <div id="search">
-                <input type="text" placeholder='"pretty little liars" -country' class="input-xxlarge input-path gen-input" id="source" value="">
-                <button id='rdio-search' class='btn btn-primary'> Rdio Playlists </button>
-                <button id='watchwith-search' class='btn btn-primary'> Watchwith</button>
+                <input type="text" placeholder='pretty little liars' class="input-xxlarge input-path gen-input" id="source" value="">
+                <button id='rdio-search' class='btn btn-primary'> Search for playlists</button>
             <div id="info"></div>
           </div>
       </div>
@@ -127,8 +126,12 @@ function init() {
 
     $("#rdio-search").click(function() {
         var query = $("#source").val();
-        info("Searching for " + query + " playlists ...");
-        searchForPlaylists(query);
+        if (query.length == 0) {
+            alert("Type the name of a show first.");
+        }  else {
+            info("Searching for " + query + " playlists ...");
+            searchForPlaylists(query);
+        }
     });
 
     $("#watchwith-search").click(function() {
@@ -628,10 +631,16 @@ function searchForPlaylists(keywords) {
             $("#playlist-info").show();
             $("#playlist-count").text(response.result.playlist_count);
             $("#playlist-showing").text(response.result.results.length);
-            $("#button-get-songs").text("Aggregate tracks from " + response.result.results.length + " playlists");
-            // info("Found " + response.result.playlist_count + " matching playlists");
-            playlists = response.result.results;
-            showAllResults();
+            if (response.result.playlist_count > 0) {
+                $("#button-get-songs").text("Aggregate tracks from " + response.result.results.length + " playlists");
+                $("#button-get-songs").show();
+                // info("Found " + response.result.playlist_count + " matching playlists");
+                playlists = response.result.results;
+                showAllResults();
+            } else {
+                $("#button-get-songs").hide();
+                info("No playlists found. Try a different query.");
+            }
         },
 
         error: function(response) {
