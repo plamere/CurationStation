@@ -774,9 +774,11 @@ function playSong(song) {
             source: rdioID
         });
     }
-    $("#song-title").text(song.song_name);
-    $("#artist-name").text(song.artist_name);
-    updateSongTables(song);
+    if (song) {
+        $("#song-title").text(song.song_name);
+        $("#artist-name").text(song.artist_name);
+        updateSongTables(song);
+    }
 }
 
 function queueSong(song) {

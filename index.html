@@ -8,6 +8,7 @@
 <script src="js/underscore-min.js" type="text/javascript" charset="utf-8"></script>
 <script type="text/javascript" src="js/date.format.js"></script> 
 <script src="https://www.rdio.com/api/api.js?client_id=Ufg_i9sBfigkuL5rYBlIdw"></script>
+<script type="text/javascript" src="http://static.echonest.com/demo/common/get_key_with_callback.js"></script>
 <script type="text/javascript" src="echonest.js"></script> 
 
 <title> Curation Station </title>
@@ -107,9 +108,7 @@
 <script type="text/javascript">
 
 var playlists = null;
-var api_key = 'FSEHQ49ZVT7DW3PTE';
-
-var en = new EchoNest(api_key);
+var en; 
 
 
 
@@ -652,6 +651,9 @@ function searchForPlaylists(keywords) {
 
 
 $(document).ready(function() {
+    fetchApiKey( function(api_key, isLoggedIn) {
+        en = new EchoNest(api_key);
+    });
 });
 
 </script>
